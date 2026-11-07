@@ -1,0 +1,9 @@
+{
+  "chat.tools.terminal.autoApprove": {
+    "awk": true,
+    "/^python3 - <<'PY'\nimport json\nfrom pathlib import Path\np=Path\\('/Users/yung/Documents/GitHub/FlowCheck/public/data/ward-indicators\\.json'\\)\ndata=json\\.loads\\(p\\.read_text\\(\\)\\)\nfor code,row in data\\['wards'\\]\\.items\\(\\):\n    if row\\.get\\('borough'\\) == 'City of London' or row\\.get\\('borough_name'\\) == 'City of London' or row\\.get\\('borough_code'\\) == 'E09000001':\n        print\\(code, row\\)\nPY$/": {
+      "approve": true,
+      "matchCommandLine": true
+    }
+  }
+}
