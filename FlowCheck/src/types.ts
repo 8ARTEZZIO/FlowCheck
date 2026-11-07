@@ -44,11 +44,15 @@ export type Policy = {
   risk_method: string; capital_method: string; allowance_note: string;
 };
 export type Source = { publisher: string; url: string; period: string; note?: string; file?: string; sheet?: string; status?: string };
+export type Ward = { code: string; name: string; path: string; label: [number, number]; label_clearance: number };
+export type WardGroup = { code: string; name: string; viewBox: string; wards: Ward[] };
+export type WardDataset = { metadata: { publisher: string; service_url: string; source_vintage: string; ward_count: number; borough_count: number; [key: string]: unknown }; boroughs: Record<string, WardGroup> };
 export type DataBundle = {
   evidence: { boroughs: EvidenceRow[]; sources: Record<string, Source>; method_notes: string[]; retrieved_on: string; london_fdi_context: { net_inward_flow_gbp_billion_2024: number } };
   market: { metadata: Record<string, unknown>; boroughs: Record<string, MarketRow> };
   boundaries: { viewBox: string; fillRule: 'evenodd'; boroughs: Record<string, { name: string; path: string; centroid?: [number, number]; label?: [number, number] }>; metadata: Record<string, unknown> };
   policy: Policy;
+  wards: WardDataset;
   areas: Area[];
 };
 export type Brief = { title: string; summary: string; next_steps: string[]; caveat: string; source_ids: string[]; mode: string };
