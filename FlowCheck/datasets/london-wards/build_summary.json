@@ -1,0 +1,13 @@
+{
+  "crime_period_last12": "2025-11 to 2026-10",
+  "sales_years": [
+    2024,
+    2025
+  ],
+  "min_sales_flag": 20,
+  "wards": 684,
+  "neighbourhoods": 1002,
+  "lsoas": 4994,
+  "sales_matched_2025": 87055,
+  "sales_matched_2024": 83940
+}
