@@ -40,7 +40,7 @@ export type Match = Area & {
 };
 export type Policy = {
   version: string; default_profile: Profile;
-  appetites: Record<Appetite, { label: string; quantile: number; description: string }>;
+  appetites: Record<Appetite, { label: string; min_pct: number; max_pct: number | null; description: string }>;
   risk_method: string; capital_method: string; allowance_note: string;
 };
 export type Source = { publisher: string; url: string; period: string; note?: string; file?: string; sheet?: string; status?: string };

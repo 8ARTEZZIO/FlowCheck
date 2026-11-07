@@ -62,7 +62,7 @@ No customer account or personal profile is required. Capital settings remain in 
 An area matches only when both conditions hold:
 
 1. **Capital:** `target homes × (March 2025 borough-average property price + works allowance per home) × (1 + reserve / 100)` is no greater than available capital, rounded to pennies.
-2. **Appetite:** historical annualised UK HPI index variability is within the chosen relative cap. Conservative admits the lowest 11 of 33 areas, Balanced the lowest 22, and Ambitious all 33. Caps use nearest-rank terciles and are 4.234%, 5.611% and 17.013% in this snapshot.
+2. **Appetite:** historical annualised UK HPI index variability is within the chosen fixed band cap. Conservative covers 0–5%, Balanced covers above 5% to below 15%, and Ambitious covers 15% or higher. These are screening bands, not predictions of returns or loss.
 
 Works and reserve amounts are editable assumptions. This is a cash-only acquisition/reuse reference. It is not a construction-cost estimate, current property quote, lending assessment, tax calculation, property availability count, expected-return model or probability of loss. A fit does not establish a sound property investment. Borough averages conceal property-type and neighbourhood variation.
 

@@ -9,11 +9,11 @@
     "focus": "growth"
   },
   "appetites": {
-    "conservative": {"label": "Conservative", "quantile": 0.3333333333333333, "description": "The third of boroughs with the lowest historical price variability."},
-    "balanced": {"label": "Balanced", "quantile": 0.6666666666666666, "description": "The two thirds with lower historical price variability."},
-    "ambitious": {"label": "Ambitious", "quantile": 1, "description": "Consider all historical price-variability bands."}
+    "conservative": {"label": "Conservative", "min_pct": 0, "max_pct": 5, "description": "Historical variability from 0% up to and including 5%."},
+    "balanced": {"label": "Balanced", "min_pct": 5, "max_pct": 15, "description": "Historical variability above 5% and below 15%."},
+    "ambitious": {"label": "Ambitious", "min_pct": 15, "max_pct": null, "description": "Historical variability of 15% or higher."}
   },
-  "risk_method": "Nearest-rank terciles of annualised sample standard deviation of 36 monthly log changes in the official UK HPI index, April 2022 to March 2025. Relative screening bands, not predictions of returns or loss.",
+  "risk_method": "Fixed screening bands using annualised sample standard deviation of 36 monthly log changes in the official UK HPI index, April 2022 to March 2025: conservative is 0–5%, balanced is above 5% and below 15%, and ambitious is 15% or higher. These are not predictions of returns or loss.",
   "capital_method": "homes × (March 2025 borough-average price + works allowance per home) × (1 + reserve percent / 100), rounded to pennies. Cash-only indicative acquisition/reuse scenario; not a construction cost, current quotation, tax calculation or availability count.",
   "allowance_note": "Works allowance and reserve are editable customer assumptions. Taxes, fees and financing require a separate property-specific budget. No leverage is assumed."
 }

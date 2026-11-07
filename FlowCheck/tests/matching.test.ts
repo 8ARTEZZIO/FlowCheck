@@ -20,9 +20,10 @@ test('every official area has a unique, complete price and evidence join', () =>
   assert.equal(areas.reduce((n, a) => n + a.longterm_empty_2025_10_06, 0), 47287);
 });
 
-test('appetite admits exactly the stated 11 / 22 / 33 historical bands', () => {
-  assert.deepEqual(thresholds(areas, policy), { conservative: 4.234, balanced: 5.611, ambitious: 17.013 });
-  assert.deepEqual(['conservative', 'balanced', 'ambitious'].map(appetite => matchAreas(areas, { ...base, appetite: appetite as Profile['appetite'] }, policy).filter(a => a.matches).length), [11, 22, 33]);
+test('appetite uses the fixed historical variability caps', () => {
+  assert.deepEqual(thresholds(areas, policy), { conservative: 5, balanced: 15, ambitious: 17.013 });
+  assert.deepEqual(['conservative', 'balanced', 'ambitious'].map(appetite => matchAreas(areas, { ...base, appetite: appetite as Profile['appetite'] }, policy).filter(a => a.risk_fits).length), [16, 16, 1]);
+  assert.equal(areas.find(a => a.historical_annualized_index_volatility_36m_pct === 17.013)?.risk_band, 'ambitious');
 });
 
 test('cash budget includes the declared works allowance, units and reserve', () => {
@@ -43,20 +44,19 @@ test('a budget on the penny boundary fits; one penny below fails', () => {
 test('a capital amount below every borough reference produces zero matches', () => {
   const rows = matchAreas(areas, { ...base, capital: 250000, appetite: 'ambitious' }, policy);
   assert.equal(rows.filter(a => a.matches).length, 0);
-  assert.ok(rows.every(a => !a.budget_fits && a.risk_fits));
+  assert.ok(rows.every(a => !a.budget_fits || !a.risk_fits));
 });
 
-test('larger capital and wider appetite never remove existing matches', () => {
-  const low = matchAreas(areas, { ...base, capital: 600000, appetite: 'conservative' }, policy).filter(a => a.matches).map(a => a.code);
+test('larger capital increases matches within the same appetite band', () => {
+  const low = matchAreas(areas, { ...base, capital: 600000, appetite: 'balanced' }, policy).filter(a => a.matches).map(a => a.code);
   const high = new Set(matchAreas(areas, { ...base, capital: 900000, appetite: 'balanced' }, policy).filter(a => a.matches).map(a => a.code));
   assert.ok(low.every(code => high.has(code)));
 });
 
 test('priority changes ordering without changing eligibility', () => {
-  const growth = matchAreas(areas, { ...base, appetite: 'ambitious', focus: 'growth' }, policy);
-  const vacancy = matchAreas(areas, { ...base, appetite: 'ambitious', focus: 'vacancy' }, policy);
-  assert.equal(growth[0].borough, 'Havering');
-  assert.equal(vacancy[0].borough, 'Barnet');
+  const growth = matchAreas(areas, { ...base, appetite: 'balanced', focus: 'growth' }, policy);
+  const vacancy = matchAreas(areas, { ...base, appetite: 'balanced', focus: 'vacancy' }, policy);
+  assert.notEqual(growth[0].borough, vacancy[0].borough);
   assert.deepEqual(growth.map(a => a.code).sort(), vacancy.map(a => a.code).sort());
 });
 

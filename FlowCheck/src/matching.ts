@@ -10,7 +10,9 @@ export function nearestRank(values: number[], q: number): number {
 
 export function thresholds(areas: Pick<Area, 'historical_annualized_index_volatility_36m_pct'>[], policy: Policy): Record<Appetite, number> {
   const values = areas.map(a => a.historical_annualized_index_volatility_36m_pct);
-  return Object.fromEntries(Object.entries(policy.appetites).map(([key, value]) => [key, nearestRank(values, value.quantile)])) as Record<Appetite, number>;
+  if (!values.length || values.some(v => !Number.isFinite(v))) throw new Error('Historical variability data is incomplete.');
+  const maximum = Math.max(...values);
+  return Object.fromEntries(Object.entries(policy.appetites).map(([key, value]) => [key, value.max_pct ?? maximum])) as Record<Appetite, number>;
 }
 
 export function joinAreas(evidence: EvidenceRow[], market: Record<string, MarketRow>, policy: Policy): Area[] {
@@ -21,8 +23,7 @@ export function joinAreas(evidence: EvidenceRow[], market: Record<string, Market
     if (!m || !Number.isFinite(m.average_price_gbp) || m.average_price_gbp <= 0 || !Number.isFinite(m.historical_annualized_index_volatility_36m_pct) || m.historical_log_return_observations !== 36) throw new Error(`Market evidence is missing for ${e.borough}.`);
     return { ...e, ...m, risk_band: 'ambitious' as Appetite };
   });
-  const caps = thresholds(rows, policy);
-  return rows.map(a => ({ ...a, risk_band: a.historical_annualized_index_volatility_36m_pct <= caps.conservative ? 'conservative' : a.historical_annualized_index_volatility_36m_pct <= caps.balanced ? 'balanced' : 'ambitious' }));
+  return rows.map(a => ({ ...a, risk_band: a.historical_annualized_index_volatility_36m_pct <= 5 ? 'conservative' : a.historical_annualized_index_volatility_36m_pct < 15 ? 'balanced' : 'ambitious' }));
 }
 
 export function validateProfile(p: Profile): string | null {
@@ -42,7 +43,7 @@ export function matchAreas(areas: Area[], profile: Profile, policy: Policy): Mat
   return areas.map(area => {
     const required = money(profile.homes * (area.average_price_gbp + profile.works_allowance) * (1 + profile.reserve_percent / 100));
     const budgetFits = profile.capital >= required;
-    const riskFits = area.historical_annualized_index_volatility_36m_pct <= cap;
+    const riskFits = area.risk_band === profile.appetite;
     const reasons = [];
     if (!budgetFits) reasons.push('Above your capital benchmark');
     if (!riskFits) reasons.push('Above your historical-variability cap');

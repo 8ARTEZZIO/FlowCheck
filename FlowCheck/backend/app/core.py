@@ -27,15 +27,12 @@ def money(value):
     return math.floor(value * 100 + 0.5 + 1e-7) / 100
 
 
-def nearest_rank(values, quantile):
-    if not values or not all(math.isfinite(v) for v in values):
-        raise ValueError("Historical variability data is incomplete.")
-    return sorted(values)[max(0, math.ceil(quantile * len(values)) - 1)]
-
-
 def thresholds(areas, policy):
     values = [a["historical_annualized_index_volatility_36m_pct"] for a in areas]
-    return {key: nearest_rank(values, item["quantile"]) for key, item in policy["appetites"].items()}
+    if not values or not all(math.isfinite(v) for v in values):
+        raise ValueError("Historical variability data is incomplete.")
+    maximum = max(values)
+    return {key: item["max_pct"] if item["max_pct"] is not None else maximum for key, item in policy["appetites"].items()}
 
 
 def join_areas(evidence=None, market=None, policy=None):
@@ -51,10 +48,9 @@ def join_areas(evidence=None, market=None, policy=None):
         if not m or not math.isfinite(m["average_price_gbp"]) or m["average_price_gbp"] <= 0 or not math.isfinite(m["historical_annualized_index_volatility_36m_pct"]) or m["historical_log_return_observations"] != 36:
             raise ValueError(f"Market evidence is missing for {e['borough']}.")
         areas.append({**e, **m})
-    caps = thresholds(areas, policy)
     for area in areas:
         vol = area["historical_annualized_index_volatility_36m_pct"]
-        area["risk_band"] = "conservative" if vol <= caps["conservative"] else "balanced" if vol <= caps["balanced"] else "ambitious"
+        area["risk_band"] = "conservative" if vol <= 5 else "balanced" if vol < 15 else "ambitious"
     return areas
 
 
@@ -65,7 +61,7 @@ def match_areas(areas, profile: Profile, policy=None):
     for area in areas:
         required = money(profile.homes * (area["average_price_gbp"] + profile.works_allowance) * (1 + profile.reserve_percent / 100))
         budget_fits = profile.capital >= required
-        risk_fits = area["historical_annualized_index_volatility_36m_pct"] <= cap
+        risk_fits = area["risk_band"] == profile.appetite
         reasons = []
         if not budget_fits:
             reasons.append("Above your capital benchmark")
