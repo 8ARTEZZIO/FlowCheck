@@ -32,3 +32,42 @@
 @media(max-width:700px){.mobile-navigation{display:flex;gap:6px;padding:10px 16px 0;background:#f5f6f1}.mobile-navigation button{display:flex;align-items:center;gap:5px;background:none;border:1px solid transparent;border-radius:6px;font-size:11px;padding:8px 11px;color:#819176}.mobile-navigation button.active{background:#e9f1e0;border-color:#dce7d1;color:#4f723d}.page{padding-top:20px}.appetite-option small{font-size:8px}.next-investigation p{font-size:11px}.map-summary span{font-size:9px}.evidence-metrics>div>small{font-size:10px}.map-label{font-size:12px}.detail-panel>.micro{font-size:10px}.page-footer{font-size:9px}.small-band{font-size:7px}}
 
 .borough.selected.match{fill:#205b42}.borough.selected:not(.match){fill:#dedfd6;stroke:#5b7150;stroke-width:2.2;stroke-dasharray:4 2}.borough.selected.risk-out{fill:#e8d2ac}
+
+/* District evidence and continuous attractiveness grading. */
+.ward-boundary{stroke:#fff;stroke-width:2.2;transition:stroke .15s,stroke-width .15s;vector-effect:non-scaling-stroke}
+.ward-boundary:hover,.ward-boundary.hovered{stroke:#173e33;stroke-width:2}
+.ward-boundary.selected{stroke:#173e33;stroke-width:3;stroke-dasharray:6 3}
+.ward-boundary:focus-visible{stroke:#a96c23;stroke-width:4}
+.ward-label{fill:#173e33;stroke:#f0f8ec;stroke-width:2px}
+.ward-label.on-dark{fill:#fff;stroke:#174c3d}
+.ward-map-intro{padding:12px 22px 0;color:#59735d;font-size:11px;line-height:1.6}
+.ward-stage.map-stage{flex:none;min-height:280px}.ward-map.borough-map{max-height:355px}
+.ward-selector{padding-top:9px}.ward-selector select{font-size:12px}
+.ward-selection{display:block;margin-top:17px;color:#516951;font-size:12px}
+.ward-selection-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.ward-selection-heading h3{font-size:20px;font-weight:600;color:#204b37;line-height:1.2}
+.ward-selection-heading>div>span{display:block;font-size:10px;color:#71816e;margin-top:5px}
+.ward-score{flex-shrink:0;border-left:4px solid;padding-left:10px;min-width:95px}
+.ward-score strong{font-size:24px;font-weight:600;color:#1d5137}.ward-score strong small{font-size:11px;font-weight:450;color:#73836e}
+.ward-score>span{font-size:10px!important;color:#5d755b!important;margin-top:2px!important}
+.ward-neighbourhoods{font-size:11px;line-height:1.7;margin-top:13px;color:#65765f}.ward-neighbourhoods b{display:block;font-size:10px;font-weight:600;color:#45603f}
+.ward-data-note{padding:10px 12px;background:#f3f5f1;border:1px solid #dde4da;border-radius:6px;color:#52674d;font-size:11px;line-height:1.7;margin-top:12px}
+.ward-metrics{display:grid;grid-template-columns:1fr 1fr;gap:16px 12px;margin:16px 0;padding:16px 0;border-top:1px solid #e5ecdf;border-bottom:1px solid #e5ecdf}
+.ward-metrics div{min-width:0}.ward-metrics dt{font-size:11px;color:#597054}.ward-metrics dd{margin:5px 0 3px;font-size:21px;color:#254e35;letter-spacing:-.5px;font-weight:550;overflow-wrap:anywhere}
+.ward-metrics small{font-size:10px;line-height:1.5;color:#71816a;display:block}
+.ward-score-breakdown h4,.ward-more h4{font-size:12px;font-weight:600;color:#3f603a;margin:0 0 12px}.ward-score-breakdown h4>span{display:block;font-size:10px;font-weight:400;color:#71816a;margin-top:5px}
+.ward-score-breakdown>div{display:grid;grid-template-columns:minmax(130px,1fr) minmax(45px,1fr) 24px;align-items:center;gap:10px;font-size:11px;margin-bottom:9px}.ward-score-breakdown strong{text-align:right;color:#325c3b}
+.ward-score-breakdown meter{width:100%;height:9px;appearance:none;border:0;border-radius:4px;background:#eaf1e4}
+.ward-score-breakdown meter::-webkit-meter-bar{background:#eaf1e4;border:0;border-radius:4px}.ward-score-breakdown meter::-webkit-meter-optimum-value{background:#508e56;border-radius:4px}.ward-score-breakdown meter::-moz-meter-bar{background:#508e56;border-radius:4px}
+.ward-more,.ward-method{border-top:1px solid #e5ecdf;margin-top:16px;padding-top:13px;color:#526b4c;font-size:11px;line-height:1.7}
+.ward-more summary,.ward-method summary{font-weight:600;cursor:pointer;color:#365d3e}.ward-more[open] summary,.ward-method[open] summary{margin-bottom:12px}
+.ward-more p,.ward-method p{margin-top:10px;font-size:11px;line-height:1.75}.ward-more dl{margin-bottom:0}
+.ward-more dl>div{display:flex;justify-content:space-between;align-items:baseline;gap:15px;border-top:1px solid #edf1e8;padding:7px 0}.ward-more dt{flex:1}.ward-more dd{margin:0;max-width:55%;text-align:right;color:#2c543a}
+.ward-property-types{display:grid;grid-template-columns:1fr 1fr;gap:10px}.ward-property-types>div{background:#f5f8f0;border-radius:6px;padding:10px}.ward-property-types span,.ward-property-types strong,.ward-property-types small{display:block}.ward-property-types strong{font-size:15px;font-weight:550;color:#2c543a}.ward-property-types small{color:#73816b;font-size:10px}
+.ward-selector>p.ward-source-note{font-size:10px;color:#65775d;line-height:1.8;margin-top:16px;padding-top:12px}
+.ward-legend{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;font-size:10px;color:#536e4d}.ward-legend>div{display:flex;flex-wrap:wrap;align-items:center;gap:7px}.ward-legend strong{font-size:10px;font-weight:600}.ward-legend span{display:flex;align-items:center;gap:5px;font-size:10px}
+.ward-gradient{display:inline-block;width:95px;height:8px;border-radius:2px;background:linear-gradient(to right,#edf8e9,#d9f0ce,#addd8e,#78c679,#41ab5d,#238443,#005a32)}
+.ward-unscored-key{display:inline-block;width:9px;height:9px;border-radius:2px;background:#dce1df;border:1px solid #b9c3bf}
+.map-footer:has(.ward-legend){flex-wrap:wrap}.map-footer:has(.ward-legend) .map-caption{font-size:10px}
+@media(max-width:700px){.ward-map-intro{padding-right:20px;padding-left:20px}.ward-selection-heading h3{font-size:20px}.ward-metrics dd{font-size:22px}.ward-selector{padding-bottom:20px}.ward-score-breakdown>div{grid-template-columns:minmax(125px,1fr) minmax(40px,1fr) 24px;gap:7px}.ward-toolbar>span{font-size:10px}}
+.ward-map-legend{padding:10px 22px 0}.ward-map-legend .ward-legend{gap:8px 15px}.ward-map-legend .ward-gradient{width:100px}

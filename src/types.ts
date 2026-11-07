@@ -45,6 +45,22 @@ export type Policy = {
 };
 export type Source = { publisher: string; url: string; period: string; note?: string; file?: string; sheet?: string; status?: string };
 export type Ward = { code: string; name: string; path: string; label: [number, number]; label_clearance: number };
+export type WardIndicators = {
+  ward_code: string; ward_name: string; borough_code: string; borough: string; neighbourhoods: string;
+  low_sales_flag: boolean;
+} & Record<WardNumericField, number | null>;
+export type WardNumericField = 'lsoa_count' | 'area_km2' | 'pop_2024' | 'pop_change_2023_24_pct' | 'pop_density_per_km2'
+  | 'pct_age_0_15' | 'pct_age_16_64' | 'pct_age_65_plus' | 'imd_score' | 'income_score' | 'crime_dep_score'
+  | 'housing_barriers_score' | 'living_env_score' | 'pct_lsoas_most_deprived_20pct'
+  | 'crime_last12' | 'crime_prev12' | 'crime_per_1000' | 'crime_change_pct'
+  | 'sales_2025' | 'median_price_2025' | 'mean_price_2025' | 'median_flat_2025' | 'sales_flat_2025'
+  | 'median_terraced_2025' | 'sales_terraced_2025' | 'median_semi_2025' | 'sales_semi_2025'
+  | 'median_detached_2025' | 'sales_detached_2025' | 'new_build_share_2025_pct'
+  | 'sales_2024' | 'median_price_2024' | 'median_change_2024_25_pct';
+export type WardIndicatorDataset = {
+  metadata: { [key: string]: unknown };
+  wards: Record<string, WardIndicators & { top_crime_group: string | null }>;
+};
 export type WardGroup = { code: string; name: string; viewBox: string; wards: Ward[] };
 export type WardDataset = { metadata: { publisher: string; service_url: string; source_vintage: string; ward_count: number; borough_count: number; [key: string]: unknown }; boroughs: Record<string, WardGroup> };
 export type DataBundle = {
@@ -53,6 +69,7 @@ export type DataBundle = {
   boundaries: { viewBox: string; fillRule: 'evenodd'; boroughs: Record<string, { name: string; path: string; centroid?: [number, number]; label?: [number, number] }>; metadata: Record<string, unknown> };
   policy: Policy;
   wards: WardDataset;
+  wardIndicators: WardIndicatorDataset;
   areas: Area[];
 };
 export type Brief = { title: string; summary: string; next_steps: string[]; caveat: string; source_ids: string[]; mode: string };

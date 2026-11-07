@@ -18,7 +18,7 @@ script = (dist / js_match.group(1).lstrip('/')).read_text()
 style = (dist / css_match.group(1).lstrip('/')).read_text()
 style = re.sub(r'''@import\s*(?:url\([^)]*\)|"[^"]*"|'[^']*')[^;]*;''', '', style)
 assert '@import' not in style and 'url(' not in style, 'External styles would break the offline demo'
-bundle = {name: json.loads((ROOT / 'public/data' / f'{name}.json').read_text()) for name in ('evidence', 'market', 'boundaries', 'policy', 'wards')}
+bundle = {name: json.loads((ROOT / 'public/data' / f'{name}.json').read_text()) for name in ('evidence', 'market', 'boundaries', 'policy', 'wards', 'ward-indicators')}
 payload = json.dumps(bundle, ensure_ascii=False, separators=(',', ':')).replace('<', '\\u003c').replace('>', '\\u003e').replace('&', '\\u0026')
 assert '</script' not in script.lower() and '</style' not in style.lower()
 html = html.replace(js_match.group(0), '').replace(css_match.group(0), '<style>\n' + style + '\n</style>')
