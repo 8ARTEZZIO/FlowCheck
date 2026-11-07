@@ -1,0 +1,19 @@
+{
+  "version": "1.0.0",
+  "default_profile": {
+    "capital": 1000000,
+    "appetite": "balanced",
+    "works_allowance": 50000,
+    "reserve_percent": 10,
+    "homes": 1,
+    "focus": "growth"
+  },
+  "appetites": {
+    "conservative": {"label": "Conservative", "quantile": 0.3333333333333333, "description": "The third of boroughs with the lowest historical price variability."},
+    "balanced": {"label": "Balanced", "quantile": 0.6666666666666666, "description": "The two thirds with lower historical price variability."},
+    "ambitious": {"label": "Ambitious", "quantile": 1, "description": "Consider all historical price-variability bands."}
+  },
+  "risk_method": "Nearest-rank terciles of annualised sample standard deviation of 36 monthly log changes in the official UK HPI index, April 2022 to March 2025. Relative screening bands, not predictions of returns or loss.",
+  "capital_method": "homes × (March 2025 borough-average price + works allowance per home) × (1 + reserve percent / 100), rounded to pennies. Cash-only indicative acquisition/reuse scenario; not a construction cost, current quotation, tax calculation or availability count.",
+  "allowance_note": "Works allowance and reserve are editable customer assumptions. Taxes, fees and financing require a separate property-specific budget. No leverage is assumed."
+}
