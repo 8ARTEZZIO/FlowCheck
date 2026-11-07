@@ -1,0 +1,311 @@
+{
+  "checked_on": "2026-11-07",
+  "status": "partially_verified",
+  "summary": "Official source identities and periods were checked. All 704 GLA ward identifiers, names and borough parents match; population, growth and population-weighted IMD were independently reproduced for all 20 Camden wards (60 matching values). Crime totals and property prices were not independently rebuilt.",
+  "snapshot": {
+    "file": "datasets/london-wards/london_wards.csv",
+    "sha256": "8d7964473162684441c8ee32231179cf9edb9814168574ec829e31499ee3d8a4"
+  },
+  "checks": [
+    {
+      "id": "official_source_register",
+      "status": "confirmed",
+      "description": "Primary publisher pages and dataset identifiers were confirmed; source-specific scope and licence differences are recorded in sources."
+    },
+    {
+      "id": "gla_ward_identifiers",
+      "status": "passed",
+      "description": "704 live ward-code/name/borough tuples exactly match the map.",
+      "details": {
+        "url": "https://gis.london.gov.uk/arcgis/rest/services/apps/webmap_context_layer/FeatureServer/18/query?f=json&where=1%3D1&outFields=ward_code%2Cward_name%2Cla_gss_code%2Cla_name&returnGeometry=false",
+        "source_count": 704,
+        "map_count": 704,
+        "exact_code_name_borough_match": true,
+        "transfer_limit": false
+      }
+    },
+    {
+      "id": "camden_population_growth_imd",
+      "status": "passed",
+      "description": "Independent official-source reconstruction for 20 wards, 130 LSOAs and 260 population observations: all 60 population, growth and weighted-IMD values agree with the bundled CSV at its published precision.",
+      "details": {
+        "lookup_url": "https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/LSOA21_WD24_LAD24_EW_LU/FeatureServer/0/query?f=json&where=LAD24CD%3D%27E09000007%27&outFields=LSOA21CD%2CWD24CD%2CWD24NM%2CLAD24CD&returnGeometry=false&resultRecordCount=2000",
+        "checked_borough": "Camden",
+        "lsoa_count": 130,
+        "ward_count": 20,
+        "all_match": true,
+        "comparisons": [
+          {
+            "code": "E05013654",
+            "name": "Camden Square",
+            "population": 7966.0,
+            "growth": 0.84,
+            "imd": 27.302,
+            "matches": true
+          },
+          {
+            "code": "E05013655",
+            "name": "Camden Town",
+            "population": 4981.0,
+            "growth": -1.52,
+            "imd": 34.701,
+            "matches": true
+          },
+          {
+            "code": "E05013656",
+            "name": "Fortune Green",
+            "population": 11572.0,
+            "growth": -0.8,
+            "imd": 20.977,
+            "matches": true
+          },
+          {
+            "code": "E05013663",
+            "name": "Kentish Town North",
+            "population": 6404.0,
+            "growth": -1.61,
+            "imd": 18.677,
+            "matches": true
+          },
+          {
+            "code": "E05013670",
+            "name": "South Hampstead",
+            "population": 11813.0,
+            "growth": -1.62,
+            "imd": 18.326,
+            "matches": true
+          },
+          {
+            "code": "E05013657",
+            "name": "Frognal",
+            "population": 7207.0,
+            "growth": -0.58,
+            "imd": 8.103,
+            "matches": true
+          },
+          {
+            "code": "E05013658",
+            "name": "Gospel Oak",
+            "population": 12036.0,
+            "growth": -1.65,
+            "imd": 25.695,
+            "matches": true
+          },
+          {
+            "code": "E05013659",
+            "name": "Hampstead Town",
+            "population": 7189.0,
+            "growth": -1.15,
+            "imd": 8.505,
+            "matches": true
+          },
+          {
+            "code": "E05013660",
+            "name": "Haverstock",
+            "population": 11793.0,
+            "growth": 0.03,
+            "imd": 31.557,
+            "matches": true
+          },
+          {
+            "code": "E05013661",
+            "name": "Highgate",
+            "population": 10501.0,
+            "growth": 0.23,
+            "imd": 21.187,
+            "matches": true
+          },
+          {
+            "code": "E05013662",
+            "name": "Holborn & Covent Garden",
+            "population": 10342.0,
+            "growth": -1.06,
+            "imd": 27.823,
+            "matches": true
+          },
+          {
+            "code": "E05013671",
+            "name": "West Hampstead",
+            "population": 12480.0,
+            "growth": -0.01,
+            "imd": 20.674,
+            "matches": true
+          },
+          {
+            "code": "E05013664",
+            "name": "Kentish Town South",
+            "population": 10062.0,
+            "growth": -0.17,
+            "imd": 26.431,
+            "matches": true
+          },
+          {
+            "code": "E05013665",
+            "name": "Kilburn",
+            "population": 11221.0,
+            "growth": -1.23,
+            "imd": 35.821,
+            "matches": true
+          },
+          {
+            "code": "E05013666",
+            "name": "King's Cross",
+            "population": 11976.0,
+            "growth": 1.66,
+            "imd": 29.758,
+            "matches": true
+          },
+          {
+            "code": "E05013667",
+            "name": "Primrose Hill",
+            "population": 13989.0,
+            "growth": -0.47,
+            "imd": 15.083,
+            "matches": true
+          },
+          {
+            "code": "E05013652",
+            "name": "Belsize",
+            "population": 13197.0,
+            "growth": -1.98,
+            "imd": 9.666,
+            "matches": true
+          },
+          {
+            "code": "E05013668",
+            "name": "Regent's Park",
+            "population": 12621.0,
+            "growth": 0.4,
+            "imd": 30.706,
+            "matches": true
+          },
+          {
+            "code": "E05013653",
+            "name": "Bloomsbury",
+            "population": 14741.0,
+            "growth": 4.4,
+            "imd": 21.328,
+            "matches": true
+          },
+          {
+            "code": "E05013669",
+            "name": "St Pancras & Somers Town",
+            "population": 14852.0,
+            "growth": 1.01,
+            "imd": 35.892,
+            "matches": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "crime_raw_reproduction",
+      "status": "not_completed",
+      "description": "The official source period and scope were confirmed, but the raw download returned HTTP 403; crime totals were not independently recomputed.",
+      "attempt": {
+        "url": "https://data.london.gov.uk/download/exy3m/ff7/MPS%20LSOA%20Level%20Crime%20(most%20recent%2024%20months).csv",
+        "error": "HTTP Error 403: Forbidden"
+      }
+    },
+    {
+      "id": "sales_raw_reproduction",
+      "status": "not_performed",
+      "description": "2024/2025 official yearly download links and documentation were confirmed; transaction-to-ward reconstruction was not performed.",
+      "download_urls": [
+        "https://price-paid-data.publicdata.landregistry.gov.uk/pp-2024.csv",
+        "https://price-paid-data.publicdata.landregistry.gov.uk/pp-2025.csv"
+      ]
+    }
+  ],
+  "downloads": [
+    {
+      "name": "population.csv",
+      "url": "https://www.nomisweb.co.uk/api/v01/dataset/NM_2014_1.data.csv?geography=E01000867%2CE01000858%2CE01000863%2CE01000856%2CE01000875%2CE01000928%2CE01000877%2CE01000921%2CE01000961%2CE01000872%2CE01000873%2CE01000876%2CE01000871%2CE01000874%2CE01000885%2CE01000884%2CE01000880%2CE01000878%2CE01000879%2CE01000887%2CE01000890%2CE01000889%2CE01000886%2CE01000892%2CE01000898%2CE01000888%2CE01000891%2CE01000893%2CE01000896%2CE01000899%2CE01000895%2CE01000894%2CE01000904%2CE01000900%2CE01000902%2CE01000901%2CE01000903%2CE01000905%2CE01000906%2CE01000913%2CE01000912%2CE01000909%2CE01000911%2CE01000908%2CE01000907%2CE01000910%2CE01000920%2CE01000919%2CE01000914%2CE01000915%2CE01000916%2CE01000917%2CE01000923%2CE01000935%2CE01000964%2CE01000924%2CE01000968%2CE01000927%2CE01000974%2CE01000870%2CE01000970%2CE01000866%2CE01000925%2CE01000922%2CE01000973%2CE01000969%2CE01000971%2CE01000926%2CE01000972%2CE01000933%2CE01000934%2CE01000931%2CE01000929%2CE01000932%2CE01000930%2CE01000957%2CE01035708%2CE01000941%2CE01035712%2CE01000938%2CE01000937%2CE01000939%2CE01000860%2CE01000967%2CE01000857%2CE01000862%2CE01000845%2CE01000963%2CE01000859%2CE01000847%2CE01000846%2CE01000843%2CE01000948%2CE01000897%2CE01000944%2CE01000882%2CE01000949%2CE01000844%2CE01035710%2CE01000883%2CE01000947%2CE01000848%2CE01000951%2CE01000842%2CE01000849%2CE01000881%2CE01000946%2CE01000918%2CE01000954%2CE01000943%2CE01000959%2CE01000850%2CE01000958%2CE01000851%2CE01000956%2CE01000853%2CE01000955%2CE01000855%2CE01035709%2CE01000952%2CE01000861%2CE01000960%2CE01000965%2CE01000962%2CE01000966%2CE01000942%2CE01035711%2CE01000868%2CE01000869%2CE01035707&gender=0&c_age=200&measures=20100&time=2023%2C2024",
+      "bytes": 84914,
+      "sha256": "ee5040952f61dad463982b11ad57a5fd4aa1bf5bbc66382680386483076d3a16"
+    },
+    {
+      "name": "imd7.csv",
+      "url": "https://assets.publishing.service.gov.uk/media/691ded56d140bbbaa59a2a7d/File_7_IoD2025_All_Ranks_Scores_Deciles_Population_Denominators.csv",
+      "bytes": 9897666,
+      "sha256": "b1b716aa2e476449f987b9de3e08255b4794eabfd270626de5de18b2f5eff3ef"
+    }
+  ],
+  "sources": [
+    {
+      "publisher": "Office for National Statistics / Nomis",
+      "url": "https://www.nomisweb.co.uk/datasets/pestoa2021",
+      "note": "Small-area usual-resident population, NM_2014_1 (PESTOA2021), mid-2023 and mid-2024. Official release note https://www.nomisweb.co.uk/articles/1450.aspx confirms the 7 November 2025 release. The API definition and 260 Camden observations were independently retrieved. OGL v3.0."
+    },
+    {
+      "publisher": "Ministry of Housing, Communities and Local Government",
+      "url": "https://www.gov.uk/government/statistics/english-indices-of-deprivation-2025",
+      "note": "IoD 2025 File 7: all ranks, scores, deciles and population denominators. Published 30 October 2025; corrected 17 November 2025. The official CSV was downloaded and used to reproduce Camden population-weighted IMD. OGL v3.0."
+    },
+    {
+      "publisher": "HM Land Registry",
+      "url": "https://www.gov.uk/government/statistical-data-sets/price-paid-data-yearly-file",
+      "note": "Price Paid Data yearly files for 2024 and 2025, under OGL v3.0 with stated address-data conditions and required Land Registry attribution. Source pages and download links were confirmed; ward prices and transaction selection were not independently rebuilt."
+    },
+    {
+      "publisher": "Metropolitan Police Service / London Datastore",
+      "url": "https://data.london.gov.uk/dataset/mps-recorded-crime-geographic-breakdown-exy3m",
+      "note": "Published LSOA crime categories, monthly; the live page lists November 2024–October 2026, corresponding to the two 12-month periods in the snapshot. The source excludes categories at LSOA level, including sexual offences and residential burglary, and warns about the CONNECT transition after February 2024. The source specifies OGL v2.0. Its raw CSV download returned HTTP 403 during this audit; ward totals were not independently reproduced."
+    },
+    {
+      "publisher": "Office for National Statistics",
+      "url": "https://geoportal.statistics.gov.uk/datasets/ons::lsoa-2021-to-electoral-ward-2024-to-lad-2024-best-fit-lookup-in-ew/about",
+      "note": "LSOA 2021 to electoral ward 2024 to LAD 2024 best-fit lookup. Official ArcGIS item 686527814d73403e8f0a59c7a28b0c34 and FeatureServer LSOA21_WD24_LAD24_EW_LU were confirmed; the 130 Camden assignments were used in the independent check. Best-fit assigns whole LSOAs and is approximate at ward edges."
+    },
+    {
+      "publisher": "Greater London Authority",
+      "url": "https://gis.london.gov.uk/arcgis/rest/services/apps/webmap_context_layer/FeatureServer/18",
+      "note": "GLA London Wards (2025) map layer. All 704 live ward-code, ward-name and borough-parent tuples exactly matched the bundled map, with no transfer truncation. Polygon vertices were not compared."
+    },
+    {
+      "publisher": "Office for National Statistics",
+      "url": "https://www.data.gov.uk/dataset/e8493e3d-619e-4362-aa3a-0a3538177da8/wards-december-2024-boundaries-uk-bgc",
+      "note": "Official December 2024 UK ward boundaries, generalised to 20m and clipped to the coastline. The source listing and ONS FeatureServer were confirmed; the bundled derived areas and polygon coordinates were not independently recomputed."
+    },
+    {
+      "publisher": "House of Commons Library",
+      "url": "https://houseofcommonslibrary.github.io/msoanames/",
+      "note": "Descriptive names for 2021 MSOAs, under the Open Parliament Licence. The source identifies version 2.3 published 13 February 2026. These are readable neighbourhood names, not official electoral ward names; every bundled name was not compared."
+    }
+  ],
+  "limitations": [
+    "The display data was imported from the repository's existing london_wards.csv, not freshly assembled from all publishers in this task. The original complete build inputs and their download manifests are absent from the repository.",
+    "Independent numerical reproduction covers population, population change and weighted IMD for 20 Camden wards (60 values), not all 684 ward records or all columns.",
+    "The Met raw CSV download returned HTTP 403. Crime values and coverage could be checked against the repository and the publisher's documentation, but were not independently recomputed from the raw crime file.",
+    "Land Registry price files and official documentation were identified, but property transactions, category filtering, postcode-to-LSOA matches and ward sale medians were not independently rebuilt. The historical claim of a 99.8% postcode match rate cannot be re-established without the original inputs.",
+    "GLA checking covers all 704 ward identifiers, names and borough parents, not the polygon vertices. Area and density fields were not independently recomputed.",
+    "LSOA best-fit allocations produce approximate ward statistics, not exact official ward totals. Missing data and the City of London coverage gap must remain visible.",
+    "Met LSOA figures cover the published categories, not all crime: the source marks residential burglary and sexual offences as unavailable at this level. Crime per resident is distorted by visitors and workers; it is not a personal-risk measure. The publisher also warns about the CONNECT-system change after February 2024.",
+    "Source periods differ. Sales are transactions that were recorded, not available homes or expected returns; medians vary with the mix sold and small sale samples are unreliable.",
+    "Attractiveness scores and Conservative/Balanced/Ambitious weights are FlowCheck screening preferences, not publisher ratings, calibrated risk estimates, causal findings or investment-return forecasts. Official sources validate underlying observations, not a chosen weighted score.",
+    "The additional pp-monthly-update-new-version.csv is a filtered monthly update extract, not a complete 2022–2025 sales history. It contains national records and additions, changes and deletions; it is excluded from ward scoring and cannot establish ward volatility."
+  ],
+  "snapshot_sha256": "8d7964473162684441c8ee32231179cf9edb9814168574ec829e31499ee3d8a4",
+  "additional_repository_files": [
+    {
+      "file": "datasets/london-wards/pp-monthly-update-new-version.csv",
+      "sha256": "ef4012bf7937d228fa141f2b25be4da092cfdcd2d3fe2a65949ee6eeb642ee7e",
+      "rows": 2644,
+      "years": {
+        "2022": 323,
+        "2023": 501,
+        "2024": 1181,
+        "2025": 639
+      },
+      "record_status_counts": {
+        "A": 1950,
+        "C": 448,
+        "D": 246
+      },
+      "greater_london_rows": 391,
+      "used_for_scoring": false,
+      "interpretation": "The additional pp-monthly-update-new-version.csv is a filtered monthly update extract, not a complete 2022–2025 sales history. It contains national records and additions, changes and deletions; it is excluded from ward scoring and cannot establish ward volatility.",
+      "publisher_documentation": "https://www.gov.uk/guidance/about-the-price-paid-data"
+    }
+  ]
+}

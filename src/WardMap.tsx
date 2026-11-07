@@ -1,15 +1,16 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import type { WardGroup, WardIndicatorDataset, WardIndicators } from './types.ts';
-import { attractivenessColor, scoreWards } from './wardAttractiveness.ts';
+import type { Appetite, Area, WardGroup, WardIndicatorDataset, WardIndicators } from './types.ts';
+import { ATTRACTIVENESS_FACTORS, attractivenessColor, scoreWards, WARD_PREFERENCES } from './wardAttractiveness.ts';
+import { WardSources } from './WardSources.tsx';
 
-type Props = { group: WardGroup; indicators: WardIndicatorDataset; onBack: () => void };
+type Props = { group: WardGroup; indicators: WardIndicatorDataset; appetite: Appetite; borough: Area; onBack: () => void };
 const number = (n: number | null, digits = 0) => n === null ? 'Not available' : n.toLocaleString('en-GB', { maximumFractionDigits: digits });
 const money = (n: number | null) => n === null ? 'Not available' : `£${number(n)}`;
 const percent = (n: number | null) => n === null ? 'Not available' : `${n > 0 ? '+' : ''}${number(n, 2)}%`;
 
-function WardLegend() {
+function WardLegend({ appetite }: { appetite: Appetite }) {
   return <div className="ward-legend" aria-label="Attractiveness scale: light green is lower, dark green is higher; grey is not scored">
-    <div><strong>Attractiveness</strong><span>Lower <i className="ward-gradient"/> Higher</span></div>
+    <div><strong>Attractiveness · {WARD_PREFERENCES[appetite].label}</strong><span>Lower <i className="ward-gradient"/> Higher</span></div>
     <span><i className="ward-unscored-key"/>Not scored</span>
   </div>;
 }
@@ -21,7 +22,7 @@ function ExtraIndicators({ row }: { row: WardIndicatorDataset['wards'][string] }
     ['Age 0–15 / 16–64 / 65+ (mid-2024)', [row.pct_age_0_15, row.pct_age_16_64, row.pct_age_65_plus].map(n => n === null ? 'N/A' : `${number(n, 1)}%`).join(' / ')],
     ['2025 mean sale price', money(row.mean_price_2025)], ['2024 median sale price', money(row.median_price_2024)],
     ['2024 sales', number(row.sales_2024)], ['New-build share of 2025 sales', row.new_build_share_2025_pct === null ? 'Not available' : `${number(row.new_build_share_2025_pct, 1)}%`],
-    ['Previous 12 months’ offences', number(row.crime_prev12)], ['Most common recorded crime', row.top_crime_group || 'Not available'],
+    ['Previous 12 months’ published offences', number(row.crime_prev12)], ['Most common published crime group', row.crime_last12 === null ? 'Not available' : row.top_crime_group || 'Not available'],
     ['Income deprivation score', number(row.income_score, 3)], ['Crime deprivation score', number(row.crime_dep_score, 3)],
     ['Housing barriers score', number(row.housing_barriers_score, 3)], ['Living environment score', number(row.living_env_score, 3)],
     ['Small areas in England’s most deprived 20%', row.pct_lsoas_most_deprived_20pct === null ? 'Not available' : `${number(row.pct_lsoas_most_deprived_20pct, 1)}%`],
@@ -44,14 +45,15 @@ function WardMetrics({ row }: { row: WardIndicators }) {
     <div><dt>Sale median change</dt><dd>{percent(row.median_change_2024_25_pct)}</dd><small>2024 → 2025 · sales mix varies</small></div>
     <div><dt>Population</dt><dd>{number(row.pop_2024)}</dd><small>Residents · mid-2024</small></div>
     <div><dt>Population change</dt><dd>{percent(row.pop_change_2023_24_pct)}</dd><small>Mid-2023 → mid-2024</small></div>
-    <div><dt>Recorded crime / 1,000</dt><dd>{number(row.crime_per_1000, 1)}</dd><small>Nov 2025–Oct 2026 · residents</small></div>
-    <div><dt>Recorded offences</dt><dd>{number(row.crime_last12)}</dd><small>{percent(row.crime_change_pct)} year on year</small></div>
+    <div><dt>Published crime / 1,000</dt><dd>{number(row.crime_per_1000, 1)}</dd><small>Nov 2025–Oct 2026 · residents</small></div>
+    <div><dt>Published offences</dt><dd>{number(row.crime_last12)}</dd><small>{percent(row.crime_change_pct)} year on year</small></div>
     <div><dt>Deprivation (IMD)</dt><dd>{number(row.imd_score, 2)}</dd><small>IoD 2025 · higher = more deprived</small></div>
   </dl>;
 }
 
-export function WardMap({ group, indicators, onBack }: Props) {
-  const scores = useMemo(() => scoreWards(indicators), [indicators]);
+export function WardMap({ group, indicators, appetite, borough, onBack }: Props) {
+  const scores = useMemo(() => scoreWards(indicators, appetite), [indicators, appetite]);
+  const preferences = WARD_PREFERENCES[appetite];
   const [selectedCode, setSelectedCode] = useState(() => [...group.wards].sort((a, b) => (scores[b.code]?.score ?? -1) - (scores[a.code]?.score ?? -1))[0]?.code || '');
   const [hoveredCode, setHoveredCode] = useState('');
   const backButton = useRef<HTMLButtonElement>(null);
@@ -76,15 +78,16 @@ export function WardMap({ group, indicators, onBack }: Props) {
       <button ref={backButton} className="ward-back" onClick={onBack} aria-label="Back to London borough map"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><path d="M19 12H5m6-6-6 6 6 6"/></svg>Back to London</button>
       <span>{group.wards.length} districts <small>(wards)</small></span>
     </div>
+    <div className="ward-profile-summary" aria-live="polite"><strong>{preferences.label} district preferences</strong><p>{preferences.description}</p><small>{borough.borough} historical HPI variability: {borough.historical_annualized_index_volatility_36m_pct.toFixed(2)}% · {borough.risk_band === appetite ? 'within' : 'outside'} your selected borough band. District colours show preference scores, not ward-level volatility or budget eligibility.</small></div>
     <p className="ward-map-intro">Darker green = higher attractiveness. Select a district to compare its evidence.</p>
-    <div className="ward-map-legend"><WardLegend/></div>
+    <div className="ward-map-legend"><WardLegend appetite={appetite}/></div>
     <div className="map-stage ward-stage">
       <div className="map-grid"/>
-      <svg className="borough-map ward-map" viewBox={group.viewBox} role="group" aria-label={`${group.name} district attractiveness map. Darker green indicates a higher score. Select a ward to see its data.`}>
+      <svg className="borough-map ward-map" viewBox={group.viewBox} role="group" aria-label={`${group.name} district attractiveness map for ${preferences.label}. Darker green indicates a higher score. Select a ward to see its data.`}>
         {group.wards.map((ward, index) => {
           const score = scores[ward.code]?.score ?? null;
           return <g key={ward.code}>
-            <path className={`ward-boundary ${ward.code === selectedCode ? 'selected' : ''} ${ward.code === hoveredCode ? 'hovered' : ''}`} style={{ fill: attractivenessColor(score) }} data-ward-code={ward.code} data-score={score === null ? undefined : score.toFixed(2)} d={ward.path} fillRule="evenodd" role="button" tabIndex={0} aria-label={`${ward.name}, ${scoreLabel(ward.code)}, district ${index + 1} in ${group.name}`} aria-pressed={ward.code === selectedCode} onClick={() => selectWard(ward.code)} onKeyDown={event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); selectWard(ward.code); } }} onMouseEnter={() => setHoveredCode(ward.code)} onMouseLeave={() => setHoveredCode('')} onFocus={() => setHoveredCode(ward.code)} onBlur={() => setHoveredCode('')}><title>{`${index + 1}. ${ward.name} · ${scoreLabel(ward.code)} · ${ward.code}`}</title></path>
+            <path className={`ward-boundary ${ward.code === selectedCode ? 'selected' : ''} ${ward.code === hoveredCode ? 'hovered' : ''}`} style={{ fill: attractivenessColor(score) }} data-ward-code={ward.code} data-score={score === null ? undefined : score.toFixed(2)} data-appetite={appetite} d={ward.path} fillRule="evenodd" role="button" tabIndex={0} aria-label={`${ward.name}, ${preferences.label} ${scoreLabel(ward.code)}, district ${index + 1} in ${group.name}`} aria-pressed={ward.code === selectedCode} onClick={() => selectWard(ward.code)} onKeyDown={event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); selectWard(ward.code); } }} onMouseEnter={() => setHoveredCode(ward.code)} onMouseLeave={() => setHoveredCode('')} onFocus={() => setHoveredCode(ward.code)} onBlur={() => setHoveredCode('')}><title>{`${index + 1}. ${ward.name} · ${preferences.label} ${scoreLabel(ward.code)} · ${ward.code}`}</title></path>
             <text x={ward.label[0]} y={ward.label[1]} textAnchor="middle" dominantBaseline="middle" className={`ward-label ${score !== null && score >= 60 ? 'on-dark' : ''}`} pointerEvents="none">{ward.label_clearance >= 24 && ward.name.length <= 21 && group.code !== 'E09000001' ? ward.name : index + 1}</text>
           </g>;
         })}
@@ -97,24 +100,26 @@ export function WardMap({ group, indicators, onBack }: Props) {
       <section className="ward-selection" aria-label="Selected district evidence" aria-live="polite">
         {selected ? <>
           <div className="ward-selection-heading"><div><h3>{selected.name}</h3><span>{selected.code} · {group.name}</span></div>
-            <div className="ward-score" style={{ borderColor: attractivenessColor(rating?.score ?? null) }}><strong>{rating?.score === null || rating?.score === undefined ? '—' : rating.score.toFixed(1)}<small> / 100</small></strong><span>Attractiveness</span></div>
+            <div className="ward-score" style={{ borderColor: attractivenessColor(rating?.score ?? null) }}><strong>{rating?.score === null || rating?.score === undefined ? '—' : rating.score.toFixed(1)}<small> / 100</small></strong><span>{preferences.label}</span></div>
           </div>
           {rating?.reason && <p className="ward-data-note">{rating.reason}{row?.crime_per_1000 === null && group.code === 'E09000001' ? ' City of London Police figures are not included in the Met dataset.' : ''}</p>}
           {row ? <>
             {row.neighbourhoods && <p className="ward-neighbourhoods"><b>Overlapping neighbourhoods</b>{row.neighbourhoods.split(';').map(name => name.trim()).join(' · ')}</p>}
             {row.low_sales_flag && <p className="ward-data-note">Small sales sample: {number(row.sales_2025)} sales in 2025. Treat sale medians and changes as unreliable.</p>}
             <WardMetrics row={row}/>
-            {rating && rating.score !== null && <div className="ward-score-breakdown"><h4>What shapes this score <span>25% each · higher is more favourable</span></h4>{rating.components.map(factor => <div key={factor.key}><span>{factor.label}</span><meter min="0" max="100" value={factor.value} aria-label={`${factor.label} favourable percentile`}/><strong>{factor.value.toFixed(0)}</strong></div>)}</div>}
+            {rating && rating.score !== null && <div className="ward-score-breakdown"><h4>What shapes this score <span>{preferences.label} weights · higher percentile is more favourable</span></h4>{rating.components.map(factor => <div key={factor.key}><span>{factor.label} <small>{factor.weight}% weight</small></span><meter min="0" max="100" value={factor.value} aria-label={`${factor.label} favourable percentile, ${factor.weight}% weight`}/><strong>{factor.value.toFixed(0)}</strong></div>)}</div>}
             <ExtraIndicators row={row}/>
           </> : <p className="ward-data-note">No district indicators available. This ward has a boundary but no assigned small-area data in the snapshot; no borough averages have been substituted.</p>}
         </> : <p>Select a district to view population, housing, crime and deprivation data.</p>}
       </section>
       <details className="ward-method"><summary>How attractiveness is graded</summary>
-        <p>A relative screening score across {scoredCount} London wards with complete indicators and at least 20 sales in 2025. Lower sale prices, higher population growth, lower recorded crime per resident and lower deprivation each contribute 25%.</p>
-        <p>Each indicator is converted to a London-wide favourable percentile from 0 to 100; tied values share their average rank. The score is the mean of these four percentiles. Colours use a continuous green scale. The comparison group stays fixed when you change borough or budget. Grey wards are unscored.</p>
-        <p>These are chosen screening preferences, not an official attractiveness rating or a return forecast. Ward scores do not change borough capital or appetite matches.</p>
+        <p>A relative screening score across {scoredCount} London wards with complete indicators and at least 20 sales in 2025. Lower sale prices, higher population growth, lower published crime per resident and lower deprivation are the four preferences.</p>
+        <div className="ward-weights-wrap"><table className="ward-weights"><caption>Preference weights chosen for FlowCheck</caption><thead><tr><th>Indicator</th>{Object.values(WARD_PREFERENCES).map(p => <th key={p.label}>{p.label}</th>)}</tr></thead><tbody>{ATTRACTIVENESS_FACTORS.map(factor => <tr key={factor.key}><th>{factor.label}</th>{Object.values(WARD_PREFERENCES).map(p => <td key={p.label}>{p.weights[factor.key]}%</td>)}</tr>)}</tbody></table></div>
+        <p>Each indicator is converted to a London-wide favourable percentile from 0 to 100; tied values share their average rank. The score is the weighted mean using your selected profile. Colours update immediately; selection and raw figures stay unchanged. The comparison group stays fixed across all profiles, boroughs and budgets. Grey wards are unscored.</p>
+        <p>Weights are explicit product assumptions, not official ratings or a calibrated risk model. IMD already includes a crime domain, so these factors overlap. No expected return or ward-level volatility is estimated. Borough capital and historical HPI-band eligibility remain separate.</p>
       </details>
-      <p className="ward-source-note">Source: london-wards · population mid-2024 · Land Registry sales 2025 · Met crime Nov 2025–Oct 2026 · IoD 2025. Whole-LSOA best-fit estimates; boundaries are for display. Central crime rates reflect visitors and workers as well as residents, and are not personal-risk measures. Sale medians reflect the mix of properties sold.</p>
+      <WardSources indicators={indicators}/>
+      <p className="ward-source-note">Source: london-wards · population mid-2024 · Land Registry sales 2025 · Met crime Nov 2025–Oct 2026 · IoD 2025. Whole-LSOA best-fit estimates; boundaries are for display. Published LSOA crime excludes suppressed categories, including sexual offences; it is not total crime or a personal-risk measure. Central rates also reflect visitors and workers. Sale medians reflect the properties sold.</p>
     </div>
   </div>;
 }

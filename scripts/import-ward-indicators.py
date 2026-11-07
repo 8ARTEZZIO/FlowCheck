@@ -5,6 +5,7 @@ Run from any directory with `python3 scripts/import-ward-indicators.py`.
 """
 from pathlib import Path
 import csv
+import hashlib
 import json
 import math
 
@@ -83,10 +84,10 @@ def prepare():
         },
         'sources': [
             {'publisher': 'Office for National Statistics', 'url': 'https://geoportal.statistics.gov.uk', 'note': 'December 2024 ward boundaries and LSOA 2021 to ward 2024 best-fit lookup.'},
-            {'publisher': 'Office for National Statistics / Nomis', 'url': 'https://www.nomisweb.co.uk', 'note': 'Small-area population estimates, mid-2023 and mid-2024 (NM_2014_1).'},
+            {'publisher': 'Office for National Statistics / Nomis', 'url': 'https://www.nomisweb.co.uk/datasets/pestoa2021', 'note': 'Small-area population estimates, mid-2023 and mid-2024 (NM_2014_1).'},
             {'publisher': 'HM Land Registry', 'url': 'https://www.gov.uk/government/statistical-data-sets/price-paid-data-downloads', 'note': 'Price Paid Data, category A standard market sales, calendar 2024 and 2025.'},
             {'publisher': 'Ministry of Housing, Communities and Local Government', 'url': 'https://www.gov.uk/government/statistics/english-indices-of-deprivation-2025', 'note': 'English Indices of Deprivation 2025, File 7; population-weighted ward scores.'},
-            {'publisher': 'Metropolitan Police Service', 'url': 'https://data.london.gov.uk/dataset/mps-recorded-crime-geographic-breakdown-exy3m', 'note': 'LSOA recorded offences over the latest 24 months in the bundled snapshot.'},
+            {'publisher': 'Metropolitan Police Service', 'url': 'https://data.london.gov.uk/dataset/mps-recorded-crime-geographic-breakdown-exy3m', 'note': 'Published LSOA crime categories, November 2024–October 2026. Suppressed categories including sexual offences are excluded; not total crime. OGL v2.0.'},
             {'publisher': 'House of Commons Library', 'url': 'https://houseofcommonslibrary.github.io/msoanames', 'note': 'Common neighbourhood names for 2021 MSOAs; Open Parliament Licence.'},
             {'publisher': 'postcodes.io', 'url': 'https://postcodes.io', 'note': 'Postcode to LSOA lookup built on the ONS Postcode Directory.'},
         ],
@@ -94,12 +95,22 @@ def prepare():
             'Whole LSOAs are assigned by best fit, so values near ward boundaries are approximate rather than exact official ward totals.',
             'The 20 City of London wards without assigned LSOAs have geometry only. The five City wards with indicators have no Metropolitan Police crime figures; missing values remain null.',
             'Recorded offences per 1,000 residents are affected by visitors and workers, particularly in central London; this is not a personal-risk measure.',
+            'Published Met LSOA categories exclude sexual offences; residential burglary is also marked unavailable by the publisher. Data after February 2024 uses CONNECT, affecting comparisons.',
             'Medians describe properties sold rather than a typical home. Fewer than 20 sales is flagged as unreliable; property-type medians can have still smaller samples.',
             'Changes in sale medians reflect the mix of properties sold and do not measure investment returns. IoD 2025 is not comparable with IoD 2019.',
             'Neighbourhood names overlap wards and are not separate mapped boundaries. Source periods differ and are labelled separately.',
         ],
-        'attribution': 'Contains HM Land Registry, Ordnance Survey and National Statistics data © Crown copyright and database right 2026. Public sector information under the Open Government Licence v3.0, except House of Commons Library names under the Open Parliament Licence.',
+        'attribution': 'Contains HM Land Registry, Ordnance Survey and National Statistics data © Crown copyright and database right 2026. Public sector information under the Open Government Licence v3.0, except Metropolitan Police data under OGL v2.0 and House of Commons Library names under the Open Parliament Licence.',
     }
+    audit = json.loads((ROOT / 'datasets/london-wards/source_audit.json').read_text())
+    assert hashlib.sha256(SOURCE.read_bytes()).hexdigest() == audit['snapshot_sha256'], 'Ward data changed since source audit; repeat the source checks before publishing an audit badge'
+    validation = json.loads((ROOT / 'datasets/london-wards/validation_report.json').read_text())
+    assert validation['status'] == 'snapshot_consistency_passed', 'Ward snapshot validation did not pass'
+    for relative, fingerprint in validation['source_files'].items():
+        assert hashlib.sha256((ROOT / relative).read_bytes()).hexdigest() == fingerprint['sha256'], 'Validation report is stale; run python3 scripts/validate-ward-data.py'
+    metadata['sources'] = audit['sources'] + [metadata['sources'][-1]]  # retain the postcode-mapping source
+    metadata['source_audit'] = audit
+    metadata['validation'] = validation
     return {'metadata': metadata, 'wards': dict(sorted(wards.items()))}
 
 

@@ -3,14 +3,15 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { attractivenessColor, joinWardIndicators, scoreWards } from '../src/wardAttractiveness.ts';
-import type { WardDataset, WardIndicatorDataset } from '../src/types.ts';
+import { ATTRACTIVENESS_FACTORS, WARD_PREFERENCES, attractivenessColor, joinWardIndicators, scoreWards } from '../src/wardAttractiveness.ts';
+import type { Appetite, WardDataset, WardIndicatorDataset } from '../src/types.ts';
 
 const read = (name: string) => JSON.parse(readFileSync(new URL(`../public/data/${name}.json`, import.meta.url), 'utf8'));
 const geometry = read('wards') as WardDataset;
 const indicators = read('ward-indicators') as WardIndicatorDataset;
 type Indicator = WardIndicatorDataset['wards'][string];
 const example = Object.values(indicators.wards).find(row => row.crime_per_1000 !== null && !row.low_sales_flag)!;
+const appetites: Appetite[] = ['conservative', 'balanced', 'ambitious'];
 
 function fixture(patches: Partial<Indicator>[]): WardIndicatorDataset {
   return {
@@ -95,6 +96,68 @@ test('each indicator independently improves attractiveness with a 25 percent wei
   }
 });
 
+test('the three declared preference profiles have complete nonnegative weights totaling 100 percent', () => {
+  const expected = {
+    conservative: [25, 5, 35, 35],
+    balanced: [25, 25, 25, 25],
+    ambitious: [35, 45, 10, 10],
+  };
+  for (const appetite of appetites) {
+    const preference = WARD_PREFERENCES[appetite];
+    assert.ok(preference.label && preference.description);
+    assert.deepEqual(Object.keys(preference.weights).sort(), ATTRACTIVENESS_FACTORS.map(factor => factor.key).sort());
+    const weights = ATTRACTIVENESS_FACTORS.map(factor => preference.weights[factor.key]);
+    assert.deepEqual(weights, expected[appetite]);
+    assert.ok(weights.every(weight => Number.isFinite(weight) && weight >= 0));
+    assert.equal(weights.reduce((sum, weight) => sum + weight, 0), 100);
+  }
+});
+
+test('switching appetite changes the safety versus growth ranking using the declared weights', () => {
+  const rows = fixture([
+    { pop_change_2023_24_pct: 0, crime_per_1000: 0, imd_score: 0 },
+    {},
+    { pop_change_2023_24_pct: 2, crime_per_1000: 200, imd_score: 40 },
+  ]);
+  const conservative = scoreWards(rows, 'conservative');
+  const balanced = scoreWards(rows, 'balanced');
+  const ambitious = scoreWards(rows, 'ambitious');
+  assert.deepEqual(Object.values(conservative).map(row => row.score), [82.5, 50, 17.5]);
+  assert.deepEqual(Object.values(balanced).map(row => row.score), [62.5, 50, 37.5]);
+  assert.deepEqual(Object.values(ambitious).map(row => row.score), [37.5, 50, 62.5]);
+  assert.deepEqual(scoreWards(rows), balanced, 'the default remains the balanced preference');
+  assert.ok(conservative['test-0'].score! > conservative['test-2'].score!);
+  assert.ok(ambitious['test-2'].score! > ambitious['test-0'].score!);
+});
+
+test('all appetites retain the same London-wide percentile sample and compute a weighted score', () => {
+  const before = JSON.stringify(indicators);
+  const preferenceBefore = JSON.stringify(WARD_PREFERENCES);
+  const balanced = scoreWards(indicators, 'balanced');
+  for (const appetite of appetites) {
+    const scores = scoreWards(indicators, appetite);
+    assert.deepEqual(Object.keys(scores), Object.keys(balanced));
+    for (const [code, result] of Object.entries(scores)) {
+      const baseline = balanced[code];
+      assert.equal(result.reason, baseline.reason);
+      assert.equal(result.score === null, baseline.score === null);
+      assert.deepEqual(result.components.map(({ key, label, value }) => ({ key, label, value })),
+        baseline.components.map(({ key, label, value }) => ({ key, label, value })));
+      if (result.score === null) continue;
+      let weighted = 0;
+      for (const factor of ATTRACTIVENESS_FACTORS) {
+        const component = result.components.find(item => item.key === factor.key)!;
+        const weight = WARD_PREFERENCES[appetite].weights[factor.key];
+        assert.equal(component.weight, weight);
+        weighted += component.value * weight;
+      }
+      assert.ok(Math.abs(result.score - weighted / 100) < 1e-10, `${appetite}: ${code}`);
+    }
+  }
+  assert.equal(JSON.stringify(indicators), before);
+  assert.equal(JSON.stringify(WARD_PREFERENCES), preferenceBefore);
+});
+
 test('tied values and a single eligible ward have neutral percentiles', () => {
   for (const rows of [fixture([{}]), fixture([{}, {}, {}])]) {
     assert.ok(Object.values(scoreWards(rows)).every(row => row.score === 50));
@@ -109,11 +172,14 @@ test('missing, nonfinite, invalid and low-sales inputs are unscored and cannot a
     { imd_score: null }, { imd_score: -1 }, { imd_score: NaN },
     { sales_2025: 19 }, { sales_2025: null }, { low_sales_flag: true },
   ];
-  const scores = scoreWards(fixture([{}, ...patches]));
-  assert.equal(scores['test-0'].score, 50);
-  for (let index = 1; index <= patches.length; index++) {
-    assert.equal(scores[`test-${index}`].score, null);
-    assert.ok(scores[`test-${index}`].reason, `missing explanation for fixture ${index}`);
+  for (const appetite of appetites) {
+    const scores = scoreWards(fixture([{}, ...patches]), appetite);
+    assert.equal(scores['test-0'].score, 50);
+    for (let index = 1; index <= patches.length; index++) {
+      assert.equal(scores[`test-${index}`].score, null);
+      assert.deepEqual(scores[`test-${index}`].components, []);
+      assert.ok(scores[`test-${index}`].reason, `missing explanation for ${appetite} fixture ${index}`);
+    }
   }
 });
 

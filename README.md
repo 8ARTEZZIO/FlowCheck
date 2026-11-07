@@ -51,7 +51,7 @@ For a Vite development frontend connected to the API, set `VITE_API_BASE_URL=htt
 ## Customer experience
 
 - Capital input, presets, target homes, works allowance and reserve.
-- Conservative, Balanced and Ambitious appetite settings with explicit historical variability caps.
+- Conservative, Balanced and Ambitious appetite settings with explicit historical variability bands and district preference weights.
 - Real London borough map, accessible list alternative, search and exclusion reasons.
 - Click a borough on the map, list or shortlist to open its zoomed district view. Inspect official 2025 wards, their attractiveness score and their population, housing, crime and deprivation figures by clicking a shape or using the district selector; use **Back to London** or Escape to return.
 - Borough shortlist priorities for population growth, housing delivery or vacancy. Districts use a separate, explained attractiveness score with continuous green shading.
@@ -65,7 +65,7 @@ No customer account or personal profile is required. Capital settings remain in 
 An area matches only when both conditions hold:
 
 1. **Capital:** `target homes × (March 2025 borough-average property price + works allowance per home) × (1 + reserve / 100)` is no greater than available capital, rounded to pennies.
-2. **Appetite:** historical annualised UK HPI index variability is within the chosen fixed band cap. Conservative covers 0–5%, Balanced covers above 5% to below 15%, and Ambitious covers 15% or higher. These are screening bands, not predictions of returns or loss.
+2. **Appetite:** historical annualised UK HPI index variability is within the chosen fixed band. Conservative covers 0–5%, Balanced covers above 5% to below 15%, and Ambitious covers 15% or higher. These are screening bands, not predictions of returns or loss.
 
 Works and reserve amounts are editable assumptions. This is a cash-only acquisition/reuse reference. It is not a construction-cost estimate, current property quote, lending assessment, tax calculation, property availability count, expected-return model or probability of loss. A fit does not establish a sound property investment. Borough averages conceal property-type and neighbourhood variation.
 
@@ -75,11 +75,33 @@ Appetite is based on price variability, not on migration or the Housing Delivery
 
 Open a borough to see district-level evidence from `datasets/london-wards`. The highest-scoring available ward is initially selected. The map uses a continuous light-to-dark green scale: darker green means a higher score. Hover, click, keyboard selection and the district dropdown all expose the same score; selection changes the outline and preserves the colour.
 
-Attractiveness is an explicit screening preference, calculated independently of the borough capital/appetite filters. Four favourable percentiles each contribute 25%: lower 2025 median sale price, higher mid-2023 to mid-2024 population growth, lower recorded offences per 1,000 residents, and lower IoD 2025 deprivation. Percentiles use a fixed London-wide sample of 679 wards with complete indicators and at least 20 sales. Ties receive their average rank. The score is the mean of those percentiles on a 0–100 scale; colours interpolate continuously across that scale, rather than creating a binary match.
+Attractiveness is an explicit screening preference, calculated independently of the borough capital/appetite filters. Four favourable percentiles describe lower 2025 median sale price, higher mid-2023 to mid-2024 population growth, lower published offences per 1,000 residents, and lower IoD 2025 deprivation. The selected profile sets their weights:
+
+| Profile | Affordability | Population growth | Lower published crime | Lower deprivation |
+| --- | ---: | ---: | ---: | ---: |
+| Conservative | 25% | 5% | 35% | 35% |
+| Balanced | 25% | 25% | 25% | 25% |
+| Ambitious | 35% | 45% | 10% | 10% |
+
+These weights are explicit FlowCheck product preferences, not publisher ratings or calibrated investment risk. IMD includes a crime domain, so the factors overlap. Changing appetite immediately updates district colours, scores, component weights, map tooltips and dropdown labels while preserving the selected district and raw evidence. Borough budget/HPI-band matching remains separate; ward sale-median changes are never used as ward volatility.
+
+Percentiles use a fixed London-wide sample of 679 wards with complete indicators and at least 20 sales. Ties receive their average rank. The score is the weighted mean of those percentiles on a 0–100 scale; colours interpolate continuously across that scale, rather than creating a binary match.
 
 All 704 wards remain selectable. The 25 City of London wards are grey and unscored: five have indicators but lack Metropolitan Police crime coverage, and 20 have geometry only. Portsoken also has fewer than 20 sales and its small-sample warning is shown. Missing indicators are never replaced with zero or borough averages. Each district shows raw values, periods, overlapping neighbourhoods, score components, and expandable property-type, age, density and deprivation data.
 
 This is not an official rating or a return forecast. Whole-LSOA best-fit figures are approximate. Resident-based crime rates in visitor-heavy central wards are not personal-risk measures. Sale medians and changes describe the properties sold, and property-type medians can have very small samples. Borough capital and historical variability calculations continue to use borough evidence.
+
+## District source verification
+
+The district figures came from the existing repository CSV, not a fresh full publisher rebuild. [SOURCE_AUDIT.md](datasets/london-wards/SOURCE_AUDIT.md) records the primary source URLs, periods, licences and verification limits; [source_audit.json](datasets/london-wards/source_audit.json) records query URLs, hashes and independent comparisons. The preview exposes this under **Where the district data comes from**, including in **Sources & method**.
+
+Official publisher identities and periods are confirmed. A fresh ONS lookup, Nomis population extract and MHCLG IoD File 7 independently reproduce all 60 population/growth/weighted-IMD values for Camden's 20 wards. The live GLA service matches all 704 ward identifiers, names and borough assignments. This is **partial source verification**: the original complete raw inputs are absent, sales were not independently reconstructed, and the Met raw download returned HTTP 403. No blanket claim of numerical verification is made.
+
+`python3 scripts/validate-ward-data.py` runs 22 local consistency checks: unique codes, map/CSV/GeoJSON joins, ward–neighbourhood borough totals, rates, changes, age shares, sale flags and property samples. It writes a deterministic [validation report](datasets/london-wards/validation_report.json). The importer rejects stale hashes so a changed snapshot cannot retain an old validation badge. Future source rebuilds fail on missing population, deprivation or non-City crime inputs and on incomplete/nonconsecutive crime periods.
+
+The concurrently added `pp-monthly-update-new-version.csv` is preserved but excluded from scoring. Its 2,644 national update records include changes and deletions; 391 rows are labelled Greater London. It is not a complete 2022–2025 sale series and cannot supply ward volatility. The source audit records its hash and the Land Registry monthly-file guidance.
+
+Met LSOA crime covers only published categories: sexual offences and source-marked residential burglary are unavailable. CONNECT-system changes after February 2024 also limit comparison. The preview labels the figures accordingly and suppresses partial City crime-category names. Met data uses OGL v2.0, while Commons neighbourhood names use the Open Parliament Licence; other listed official data uses OGL v3.0 with attributions.
 
 ## Evidence and provenance
 
@@ -101,7 +123,7 @@ Historical variability is sample standard deviation (n−1 denominator) of 36 mo
 
 People, households and dwellings are different units. Different reference periods are labelled and are not treated as a common causal panel. Recorded vacancies do not identify available or recoverable homes, or overseas ownership. London FDI is business-investment context, not a borough housing funding allocation. Geometry is simplified and unsuitable for site/legal boundaries.
 
-Contains HM Land Registry, ONS, MHCLG, GLA and Ordnance Survey public sector information licensed under the [Open Government Licence v3.0](https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/). The dataset files include original publisher attributions. Data retrieval: 7 November 2026. The app intentionally uses a fixed historical snapshot; it does not claim to provide live prices.
+Contains HM Land Registry, ONS, MHCLG, GLA and Ordnance Survey public sector information licensed under the [Open Government Licence v3.0](https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/), with Met district crime under OGL v2.0 and Commons names under the Open Parliament Licence. The dataset files include original publisher attributions. Data retrieval: 7 November 2026. The app intentionally uses a fixed historical snapshot; it does not claim to provide live prices.
 
 ## Optional AI interpretation
 
@@ -125,7 +147,7 @@ Example profile:
 {"capital":500000,"appetite":"conservative","works_allowance":50000,"reserve_percent":10,"homes":1,"focus":"growth"}
 ```
 
-This profile matches Barking and Dagenham in the bundled snapshot. Havering's one-home capital reference is £549,728.30, so it is excluded by that £500,000 budget despite meeting the conservative variability cap.
+This profile matches Barking and Dagenham in the bundled snapshot. Havering's one-home capital reference is £549,728.30, so it is excluded by that £500,000 budget despite meeting the conservative variability band.
 
 ## Verification
 
@@ -136,7 +158,7 @@ cd backend
 python3 -m unittest discover -s tests -v
 ```
 
-There are 22 client/model tests, including nine district import/scoring tests, and 12 Python/API tests, including matching at the penny boundary, capital/appetite monotonicity, source control totals, missing-data failure, validation, rate limiting, no-key fallback and cross-language parity. Node's parity test needs Python with the backend requirements installed; set `FLOWCHECK_PYTHON` if using a virtual environment.
+There are 25 client/model tests, including 12 district import/scoring tests, and 12 Python/API tests, including matching at the penny boundary, capital/appetite monotonicity, source control totals, missing-data failure, validation, rate limiting, no-key fallback and cross-language parity. Node's parity test needs Python with the backend requirements installed; set `FLOWCHECK_PYTHON` if using a virtual environment.
 
 Browser checks cover risk changes, low/invalid capital, saved areas, search, list/map views, evidence briefs and CSV export. A production build is included. Docker was unavailable in the build environment, so the containerised PostgreSQL stack was not executed there. A live OpenAI request was not tested because no API key was supplied; the no-key workflow was tested.
 
@@ -155,6 +177,7 @@ These studies inform questions and possible interventions. They do not validate 
 The prepared ward snapshot is bundled. To fetch the official GLA ward layer again, run `python3 scripts/import-wards.py`. Ward geometry remains labelled with the GLA 2025 source vintage. Reimport the bundled CSV and rebuild both standalone copies with:
 
 ```bash
+python3 scripts/validate-ward-data.py
 python3 scripts/import-ward-indicators.py
 npm run build
 python3 scripts/export-offline.py FlowCheck_Open_Me.html

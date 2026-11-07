@@ -46,7 +46,7 @@ export function matchAreas(areas: Area[], profile: Profile, policy: Policy): Mat
     const riskFits = area.risk_band === profile.appetite;
     const reasons = [];
     if (!budgetFits) reasons.push('Above your capital benchmark');
-    if (!riskFits) reasons.push('Above your historical-variability cap');
+    if (!riskFits) reasons.push('Outside your historical-variability band');
     return { ...area, required_capital: required, budget_fits: budgetFits, risk_fits: riskFits, matches: budgetFits && riskFits, capital_headroom: money(profile.capital - required), budget_gap: money(Math.max(0, required - profile.capital)), exclusion_reasons: reasons };
   }).sort((a, b) => {
     if (a.matches !== b.matches) return a.matches ? -1 : 1;

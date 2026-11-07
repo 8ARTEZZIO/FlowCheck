@@ -1,4 +1,4 @@
-import type { WardDataset, WardIndicatorDataset, WardIndicators } from './types.ts';
+import type { Appetite, WardDataset, WardIndicatorDataset, WardIndicators } from './types.ts';
 
 export const ATTRACTIVENESS_FACTORS = [
   { key: 'median_price_2025', label: 'Affordability', lower: true },
@@ -7,9 +7,26 @@ export const ATTRACTIVENESS_FACTORS = [
   { key: 'imd_score', label: 'Lower deprivation', lower: true },
 ] as const;
 
+type FactorKey = typeof ATTRACTIVENESS_FACTORS[number]['key'];
+/** Explicit product preferences, not publisher ratings or calibrated investment-risk estimates. */
+export const WARD_PREFERENCES: Record<Appetite, { label: string; description: string; weights: Record<FactorKey, number> }> = {
+  conservative: {
+    label: 'Conservative', description: 'Emphasises lower recorded crime and deprivation, with less weight on population growth.',
+    weights: { median_price_2025: 25, pop_change_2023_24_pct: 5, crime_per_1000: 35, imd_score: 35 },
+  },
+  balanced: {
+    label: 'Balanced', description: 'Gives equal weight to affordability, population growth, lower recorded crime and deprivation.',
+    weights: { median_price_2025: 25, pop_change_2023_24_pct: 25, crime_per_1000: 25, imd_score: 25 },
+  },
+  ambitious: {
+    label: 'Ambitious', description: 'Emphasises population growth and affordability, while retaining lower crime and deprivation preferences.',
+    weights: { median_price_2025: 35, pop_change_2023_24_pct: 45, crime_per_1000: 10, imd_score: 10 },
+  },
+};
+
 export type WardAttractiveness = {
   score: number | null;
-  components: { key: string; label: string; value: number }[];
+  components: { key: string; label: string; value: number; weight: number }[];
   reason: string | null;
 };
 
@@ -25,7 +42,9 @@ function unavailableReason(row: WardIndicators): string | null {
 }
 
 /** One fixed London-wide reference sample, independent of borough selection or budget. */
-export function scoreWards(dataset: WardIndicatorDataset): Record<string, WardAttractiveness> {
+export function scoreWards(dataset: WardIndicatorDataset, appetite: Appetite = 'balanced'): Record<string, WardAttractiveness> {
+  const preferences = WARD_PREFERENCES[appetite];
+  if (!preferences) throw new Error('Choose a valid district preference profile.');
   const rows = Object.values(dataset.wards);
   const reliable = rows.filter(row => unavailableReason(row) === null);
   const distributions = ATTRACTIVENESS_FACTORS.map(factor => reliable.map(row => row[factor.key]!).sort((a, b) => a - b));
@@ -38,9 +57,9 @@ export function scoreWards(dataset: WardIndicatorDataset): Record<string, WardAt
       const below = values.filter(n => n < value).length;
       const equal = values.filter(n => n === value).length;
       const percentile = values.length <= 1 ? 50 : 100 * (below + (equal - 1) / 2) / (values.length - 1);
-      return { key: factor.key, label: factor.label, value: factor.lower ? 100 - percentile : percentile };
+      return { key: factor.key, label: factor.label, value: factor.lower ? 100 - percentile : percentile, weight: preferences.weights[factor.key] };
     });
-    return [row.ward_code, { score: components.reduce((sum, factor) => sum + factor.value, 0) / components.length, components, reason: null }];
+    return [row.ward_code, { score: components.reduce((sum, factor) => sum + factor.value * factor.weight / 100, 0), components, reason: null }];
   }));
 }
 

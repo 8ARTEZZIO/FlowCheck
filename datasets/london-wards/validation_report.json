@@ -1,0 +1,276 @@
+{
+  "status": "snapshot_consistency_passed",
+  "scope": "Local snapshot consistency, joins, arithmetic, missing values and cross-geography control totals.",
+  "upstream_reproduction": {
+    "status": "not_performed_raw_inputs_not_bundled",
+    "limitation": "Original publisher downloads and their retrieval manifests/hashes are not bundled. Internal consistency does not independently verify the upstream numerical values or prove that every download was complete.",
+    "expected_raw_inputs": [
+      "lsoa_ward_lookup.json",
+      "wards_raw.geojson",
+      "london_pp.csv",
+      "pc_lsoa.csv",
+      "imd7.csv",
+      "crime_lsoa.csv",
+      "pop_2023.csv",
+      "pop_2024.csv",
+      "pop_age_2024.csv",
+      "msoanames.csv"
+    ]
+  },
+  "source_files": {
+    "datasets/london-wards/london_wards.csv": {
+      "sha256": "8d7964473162684441c8ee32231179cf9edb9814168574ec829e31499ee3d8a4",
+      "bytes": 211021
+    },
+    "datasets/london-wards/london_neighbourhoods.csv": {
+      "sha256": "76705c002af4eb96555bfd632c9fd0cb5258be08329b01a11d0adc79ee89b026",
+      "bytes": 262249
+    },
+    "datasets/london-wards/london_wards.geojson": {
+      "sha256": "c579f210ec4175026729d7e2d5c5c5de0d1e89b24e8297c78fbec4f3b133c07e",
+      "bytes": 1277980
+    },
+    "datasets/london-wards/build_summary.json": {
+      "sha256": "820caf03a3b67a51ed8145d7650a95e4965d223c01604b846349f164aa94a9b4",
+      "bytes": 237
+    },
+    "datasets/london-wards/build_london_wards.py": {
+      "sha256": "4e27286d5a936cb4c9f9ef3c3ff8214a19c9656ac54b06546a98975ac97372d1",
+      "bytes": 14034
+    },
+    "public/data/wards.json": {
+      "sha256": "d79653cd11b0341201a842a8ee2435491e694ca988aacd4c76db37bd6940b0db",
+      "bytes": 840155
+    }
+  },
+  "checks": [
+    {
+      "id": "row_counts_and_unique_codes",
+      "status": "passed",
+      "detail": {
+        "wards": 684,
+        "neighbourhoods": 1002,
+        "geojson_features": 704,
+        "map_wards": 704
+      }
+    },
+    {
+      "id": "official_code_and_borough_join",
+      "status": "passed",
+      "detail": "Every indicator ward matches the map by ward code and parent borough; GeoJSON and map have the same full ward-code set."
+    },
+    {
+      "id": "csv_geojson_cell_parity",
+      "status": "passed",
+      "detail": {
+        "mismatched_cells": 0
+      }
+    },
+    {
+      "id": "geometry_only_wards",
+      "status": "passed",
+      "detail": {
+        "count": 20,
+        "ward_codes": [
+          "E05009289",
+          "E05009290",
+          "E05009291",
+          "E05009292",
+          "E05009293",
+          "E05009294",
+          "E05009295",
+          "E05009296",
+          "E05009297",
+          "E05009298",
+          "E05009299",
+          "E05009300",
+          "E05009301",
+          "E05009303",
+          "E05009304",
+          "E05009306",
+          "E05009307",
+          "E05009309",
+          "E05009310",
+          "E05009311"
+        ],
+        "expected_reason": "City of London wards without best-fit LSOAs."
+      }
+    },
+    {
+      "id": "crime_missing_values_are_explicit",
+      "status": "passed",
+      "detail": {
+        "ward_codes": [
+          "E05009288",
+          "E05009302",
+          "E05009305",
+          "E05009308",
+          "E05009312"
+        ],
+        "reason": "Metropolitan Police coverage excludes City of London Police."
+      }
+    },
+    {
+      "id": "borough_coverage",
+      "status": "passed",
+      "detail": {
+        "borough_count": 33
+      }
+    },
+    {
+      "id": "control_total_pop_2024",
+      "status": "passed",
+      "detail": {
+        "ward_total": 9089736,
+        "neighbourhood_total": 9089736,
+        "borough_mismatches": []
+      }
+    },
+    {
+      "id": "control_total_lsoa_count",
+      "status": "passed",
+      "detail": {
+        "ward_total": 4994,
+        "neighbourhood_total": 4994,
+        "borough_mismatches": []
+      }
+    },
+    {
+      "id": "control_total_crime_last12",
+      "status": "passed",
+      "detail": {
+        "ward_total": 880241,
+        "neighbourhood_total": 880241,
+        "borough_mismatches": []
+      }
+    },
+    {
+      "id": "control_total_crime_prev12",
+      "status": "passed",
+      "detail": {
+        "ward_total": 895116,
+        "neighbourhood_total": 895116,
+        "borough_mismatches": []
+      }
+    },
+    {
+      "id": "control_total_sales_2025",
+      "status": "passed",
+      "detail": {
+        "ward_total": 87055,
+        "neighbourhood_total": 87055,
+        "borough_mismatches": []
+      }
+    },
+    {
+      "id": "control_total_sales_2024",
+      "status": "passed",
+      "detail": {
+        "ward_total": 83940,
+        "neighbourhood_total": 83940,
+        "borough_mismatches": []
+      }
+    },
+    {
+      "id": "build_summary_control_totals",
+      "status": "passed",
+      "detail": "LSOA and annual sale totals agree with the original build summary."
+    },
+    {
+      "id": "required_fields",
+      "status": "passed",
+      "detail": {
+        "rows_checked": 1686,
+        "failed_rows": []
+      }
+    },
+    {
+      "id": "bounds",
+      "status": "passed",
+      "detail": {
+        "rows_checked": 1686,
+        "failed_rows": []
+      }
+    },
+    {
+      "id": "age_shares",
+      "status": "passed",
+      "detail": {
+        "rows_checked": 1686,
+        "failed_rows": []
+      }
+    },
+    {
+      "id": "crime_rate",
+      "status": "passed",
+      "detail": {
+        "rows_checked": 1686,
+        "failed_rows": []
+      }
+    },
+    {
+      "id": "crime_change",
+      "status": "passed",
+      "detail": {
+        "rows_checked": 1686,
+        "failed_rows": []
+      }
+    },
+    {
+      "id": "sale_median_change",
+      "status": "passed",
+      "detail": {
+        "rows_checked": 1686,
+        "failed_rows": []
+      }
+    },
+    {
+      "id": "low_sales_flag",
+      "status": "passed",
+      "detail": {
+        "rows_checked": 1686,
+        "failed_rows": []
+      }
+    },
+    {
+      "id": "property_samples",
+      "status": "passed",
+      "detail": {
+        "rows_checked": 1686,
+        "failed_rows": []
+      }
+    },
+    {
+      "id": "density",
+      "status": "passed",
+      "detail": {
+        "rows_checked": 684,
+        "failed_rows": []
+      }
+    }
+  ],
+  "warnings": [
+    {
+      "id": "partial_city_crime_categories",
+      "ward_codes": [
+        "E05009305",
+        "E05009308",
+        "E05009312"
+      ],
+      "detail": "Some City wards have a crime category from partial Met records despite null totals. Treat those categories as unavailable; they do not establish City of London Police coverage."
+    },
+    {
+      "id": "non_causal_screening_evidence",
+      "detail": "Different reference periods, best-fit LSOA geography, resident-based central crime rates and changing sale mixes limit interpretation. Two annual sale medians do not establish ward volatility or forecast investment returns."
+    }
+  ],
+  "totals": {
+    "pop_2024": 9089736,
+    "lsoa_count": 4994,
+    "crime_last12": 880241,
+    "crime_prev12": 895116,
+    "sales_2025": 87055,
+    "sales_2024": 83940
+  },
+  "passed_checks": 22
+}

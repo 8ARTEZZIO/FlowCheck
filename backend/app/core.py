@@ -66,7 +66,7 @@ def match_areas(areas, profile: Profile, policy=None):
         if not budget_fits:
             reasons.append("Above your capital benchmark")
         if not risk_fits:
-            reasons.append("Above your historical-variability cap")
+            reasons.append("Outside your historical-variability band")
         results.append({**area, "required_capital": required, "budget_fits": budget_fits, "risk_fits": risk_fits, "matches": budget_fits and risk_fits, "capital_headroom": money(profile.capital - required), "budget_gap": money(max(0, required - profile.capital)), "exclusion_reasons": reasons})
     if profile.focus == "vacancy":
         key = lambda a: (not a["matches"], -a["longterm_empty_2025_10_06"], a["borough"])

@@ -58,7 +58,12 @@ export type WardNumericField = 'lsoa_count' | 'area_km2' | 'pop_2024' | 'pop_cha
   | 'median_detached_2025' | 'sales_detached_2025' | 'new_build_share_2025_pct'
   | 'sales_2024' | 'median_price_2024' | 'median_change_2024_25_pct';
 export type WardIndicatorDataset = {
-  metadata: { [key: string]: unknown };
+  metadata: {
+    sources?: { publisher: string; url: string; note: string }[];
+    source_audit?: { checked_on: string; status: string; summary: string; limitations: string[] };
+    validation?: { status: string; summary?: string };
+    [key: string]: unknown;
+  };
   wards: Record<string, WardIndicators & { top_crime_group: string | null }>;
 };
 export type WardGroup = { code: string; name: string; viewBox: string; wards: Ward[] };
